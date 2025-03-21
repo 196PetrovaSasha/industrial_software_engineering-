@@ -1,10 +1,10 @@
 package main
 
 import (
-	"db_novel_service/cmd/service/migrator"
-	"db_novel_service/internal/models"
 	"github.com/joho/godotenv"
 	"log"
+	"vn/cmd/service/migrator"
+	"vn/internal/models"
 )
 
 func init() {

@@ -1,9 +1,9 @@
 package chapter
 
 import (
-	"db_novel_service/internal/storage"
 	"gorm.io/gorm"
 	"time"
+	"vn/internal/storage"
 )
 
 func UpdateChapter(

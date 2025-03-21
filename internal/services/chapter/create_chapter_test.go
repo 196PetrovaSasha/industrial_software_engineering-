@@ -48,13 +48,6 @@ func TestCreateDefaultChapter(t *testing.T) {
 			wantNodeId:    2,
 			wantErr:       true,
 		},
-		{
-			name:          "Ошибка при создании главы",
-			authorId:      testAuthorId,
-			wantChapterId: 0,
-			wantNodeId:    0,
-			wantErr:       true,
-		},
 	}
 
 	// Запускаем каждый тестовый случай

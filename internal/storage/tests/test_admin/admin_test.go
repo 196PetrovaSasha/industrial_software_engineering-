@@ -1,9 +1,9 @@
 package test_admin
 
 import (
-	"db_novel_service/internal/models"
 	"errors"
 	"testing"
+	"vn/internal/models"
 )
 
 func TestRegisterAdmin(t *testing.T) {

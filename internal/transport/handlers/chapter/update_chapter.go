@@ -1,13 +1,15 @@
 package chapter
 
 import (
-	"db_novel_service/internal/services/chapter"
 	"encoding/json"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"time"
+	"vn/internal/services/chapter"
+	"vn/pkg/metrick"
 )
 
 type UpdateChapterRequest struct {
@@ -23,7 +25,28 @@ type UpdateChapterRequest struct {
 func UpdateChapterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		log.Println("получен запрос на изменение chapter")
+		startTime := time.Now()
+
+		// Создаем wrapper для ResponseWriter чтобы отслеживать статус
+		rw := &metrick.StatusRecorder{ResponseWriter: w}
+
+		// Вызываем оригинальную функцию обработчика
+		defer func() {
+			// Записываем время выполнения запроса
+			duration := time.Since(startTime).Seconds()
+
+			// Записываем метрики
+			metrick.RequestDuration.WithLabelValues("chapter", r.Method).
+				Observe(duration)
+
+			metrick.RequestCount.WithLabelValues(
+				"chapter",
+				r.Method,
+				strconv.Itoa(rw.StatusCode),
+			).Inc()
+		}()
+
+		log.Info().Msg("получен запрос на обновление главы")
 
 		// Добавляем CORS заголовки
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -37,6 +60,7 @@ func UpdateChapterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 		}
 		// Проверяем, что это POST-запрос
 		if r.Method != http.MethodPost {
+			log.Error().Msg("Only POST requests allowed in chapters update")
 			http.Error(w, "Only POST requests allowed", http.StatusMethodNotAllowed)
 			return
 		}
@@ -45,6 +69,7 @@ func UpdateChapterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 		var req UpdateChapterRequest
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
+			log.Error().Msg("Failed to read request body in chapters update")
 			http.Error(w, "Failed to read request body", http.StatusInternalServerError)
 			return
 		}
@@ -52,6 +77,7 @@ func UpdateChapterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 		// Разбираем JSON
 		err = json.Unmarshal(body, &req)
 		if err != nil {
+			log.Error().Msg("Invalid JSON format in chapters update")
 			http.Error(w, "Invalid JSON format", http.StatusBadRequest)
 			return
 		}
@@ -60,7 +86,7 @@ func UpdateChapterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 
 		if err != nil {
 			if err != nil {
-				log.Println("ошибка конвертации id")
+				log.Error().Msg("Failed to covert id in chapters update")
 				http.Error(w, "Failed to covert id", http.StatusInternalServerError)
 				return
 			}
@@ -73,7 +99,7 @@ func UpdateChapterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 
 			if err != nil {
 				if err != nil {
-					log.Println("ошибка конвертации nodeId")
+					log.Error().Msg("Failed to covert id in chapters update")
 					http.Error(w, "Failed to covert id", http.StatusInternalServerError)
 					return
 				}
@@ -89,7 +115,7 @@ func UpdateChapterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 
 			if err != nil {
 				if err != nil {
-					log.Println("ошибка конвертации chapterId")
+					log.Error().Msg("Failed to covert id in chapters update")
 					http.Error(w, "Failed to covert id", http.StatusInternalServerError)
 					return
 				}
@@ -102,7 +128,7 @@ func UpdateChapterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 
 		if err != nil {
 			if err != nil {
-				log.Println("ошибка конвертации authorId")
+				log.Error().Msg("Failed to covert id in chapters update")
 				http.Error(w, "Failed to covert id", http.StatusInternalServerError)
 				return
 			}
@@ -117,7 +143,7 @@ func UpdateChapterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 
 			if err != nil {
 				if err != nil {
-					log.Println("ошибка конвертации startNode")
+					log.Error().Msg("Failed to covert id in chapters update")
 					http.Error(w, "Failed to covert id", http.StatusInternalServerError)
 					return
 				}
@@ -129,6 +155,7 @@ func UpdateChapterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 		err = chapter.UpdateChapter(id, req.Name, nodes, characters, author, startNode, req.Status, db)
 
 		if err != nil {
+			log.Error().Msg("fail to create chapter in chapters update")
 			http.Error(w, "fail to create chapter", http.StatusInternalServerError)
 		}
 	}

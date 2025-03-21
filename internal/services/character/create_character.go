@@ -1,11 +1,11 @@
 package character
 
 import (
-	"db_novel_service/internal/models"
-	"db_novel_service/internal/storage"
 	"gorm.io/gorm"
 	"math/rand"
 	"time"
+	"vn/internal/models"
+	"vn/internal/storage"
 )
 
 func CreateCharacter(name string, slug string, db *gorm.DB) (int64, error) {

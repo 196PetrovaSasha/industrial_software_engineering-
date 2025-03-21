@@ -1,10 +1,10 @@
 package test_player
 
 import (
-	"db_novel_service/internal/models"
 	"errors"
 	"fmt"
 	"testing"
+	"vn/internal/models"
 )
 
 func TestRegisterPlayer(t *testing.T) {

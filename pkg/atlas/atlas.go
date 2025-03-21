@@ -2,9 +2,9 @@ package atlas
 
 import (
 	"ariga.io/atlas-provider-gorm/gormschema"
-	"db_novel_service/internal/models"
 	"io"
 	"os"
+	"vn/internal/models"
 )
 
 func StartAtlasSchemaValidation() bool {

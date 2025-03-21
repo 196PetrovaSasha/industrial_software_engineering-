@@ -1,9 +1,9 @@
 package character
 
 import (
-	"db_novel_service/internal/models"
-	"db_novel_service/internal/storage"
 	"gorm.io/gorm"
+	"vn/internal/models"
+	"vn/internal/storage"
 )
 
 func GetCharacters(db *gorm.DB) (*[]models.Character, error) {

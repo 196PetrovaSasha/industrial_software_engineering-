@@ -1,13 +1,13 @@
 package admin
 
 import (
-	"db_novel_service/internal/models"
-	"db_novel_service/internal/storage"
 	"errors"
 	"gorm.io/gorm"
 	"log"
 	"math/rand"
 	"time"
+	"vn/internal/models"
+	"vn/internal/storage"
 )
 
 const (

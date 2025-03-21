@@ -1,13 +1,16 @@
 package character
 
 import (
-	"db_novel_service/internal/services/character"
 	"encoding/json"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
 	"gorm.io/gorm/utils"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+	"time"
+	"vn/internal/services/character"
+	"vn/pkg/metrick"
 )
 
 type CreateCharacterRequest struct {
@@ -17,6 +20,27 @@ type CreateCharacterRequest struct {
 
 func CreateCharacterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		startTime := time.Now()
+
+		// Создаем wrapper для ResponseWriter чтобы отслеживать статус
+		rw := &metrick.StatusRecorder{ResponseWriter: w}
+
+		// Вызываем оригинальную функцию обработчика
+		defer func() {
+			// Записываем время выполнения запроса
+			duration := time.Since(startTime).Seconds()
+
+			// Записываем метрики
+			metrick.RequestDuration.WithLabelValues("character", r.Method).
+				Observe(duration)
+
+			metrick.RequestCount.WithLabelValues(
+				"character",
+				r.Method,
+				strconv.Itoa(rw.StatusCode),
+			).Inc()
+		}()
 
 		// Добавляем CORS заголовки
 		w.Header().Set("Access-Control-Allow-Origin", "*")

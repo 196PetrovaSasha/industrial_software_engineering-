@@ -9,8 +9,8 @@ data "external_schema" "gorm" {
 
 env "development" {
   src = data.external_schema.gorm.url
-  dev = "postgresql://postgres:password@localhost:5432/db_novel_service_dev?sslmode=disable"
-  url = "postgresql://postgres:password@localhost:5432/db_novel_service?sslmode=disable"
+  dev = "postgresql://postgres:password@localhost:5432/vn_dev?sslmode=disable"
+  url = "postgresql://postgres:password@localhost:5432/vn?sslmode=disable"
   migration {
     dir = "file://migrations"
   }

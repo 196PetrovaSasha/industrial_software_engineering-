@@ -1,10 +1,10 @@
 package storage
 
 import (
-	"db_novel_service/internal/models"
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"vn/internal/models"
 )
 
 func RegisterRequest(db *gorm.DB, request models.Request) (int64, error) {

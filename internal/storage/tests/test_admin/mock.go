@@ -1,8 +1,8 @@
 package test_admin
 
 import (
-	"db_novel_service/internal/models"
 	"errors"
+	"vn/internal/models"
 )
 
 // MockStorage реализует интерфейс Storage для тестирования

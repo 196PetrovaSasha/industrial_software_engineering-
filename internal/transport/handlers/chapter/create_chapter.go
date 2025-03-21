@@ -1,7 +1,6 @@
 package chapter
 
 import (
-	"db_novel_service/internal/services/chapter"
 	"encoding/json"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
@@ -9,6 +8,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"time"
+	"vn/internal/services/chapter"
+	"vn/pkg/metrick"
 )
 
 type CreateChapterRequest struct {
@@ -17,6 +19,29 @@ type CreateChapterRequest struct {
 
 func CreateChapterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		startTime := time.Now()
+
+		// Создаем wrapper для ResponseWriter чтобы отслеживать статус
+		rw := &metrick.StatusRecorder{ResponseWriter: w}
+
+		// Вызываем оригинальную функцию обработчика
+		defer func() {
+			// Записываем время выполнения запроса
+			duration := time.Since(startTime).Seconds()
+
+			// Записываем метрики
+			metrick.RequestDuration.WithLabelValues("chapter", r.Method).
+				Observe(duration)
+
+			metrick.RequestCount.WithLabelValues(
+				"chapter",
+				r.Method,
+				strconv.Itoa(rw.StatusCode),
+			).Inc()
+		}()
+
+		log.Info().Msg("получен запрос на создание главы")
 		// Добавляем CORS заголовки
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
@@ -29,6 +54,7 @@ func CreateChapterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 		}
 		// Проверяем, что это POST-запрос
 		if r.Method != http.MethodPost {
+			log.Error().Msg("Only POST requests allowed in create chapter")
 			http.Error(w, "Only POST requests allowed", http.StatusMethodNotAllowed)
 			return
 		}
@@ -37,6 +63,7 @@ func CreateChapterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 		var req CreateChapterRequest
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
+			log.Error().Msg("Failed to read request body in create chapter")
 			http.Error(w, "Failed to read request body", http.StatusInternalServerError)
 			return
 		}
@@ -44,6 +71,7 @@ func CreateChapterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 		// Разбираем JSON
 		err = json.Unmarshal(body, &req)
 		if err != nil {
+			log.Error().Msg("Invalid JSON format in create chapter")
 			http.Error(w, "Invalid JSON format", http.StatusBadRequest)
 			return
 		}
@@ -52,7 +80,7 @@ func CreateChapterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 
 		if err != nil {
 			if err != nil {
-				log.Println("ошибка конвертации")
+				log.Error().Msg("Failed to covert id in create chapter")
 				http.Error(w, "Failed to covert id", http.StatusInternalServerError)
 				return
 			}
@@ -61,6 +89,7 @@ func CreateChapterHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 		id, nodeId, err := chapter.CreateDefaultChapter(id, db)
 
 		if err != nil {
+			log.Error().Msg("fail to create chapter in create chapter")
 			http.Error(w, "fail to create chapter", http.StatusInternalServerError)
 		}
 

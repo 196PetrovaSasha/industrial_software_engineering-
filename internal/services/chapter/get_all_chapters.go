@@ -1,10 +1,10 @@
 package chapter
 
 import (
-	"db_novel_service/internal/models"
-	"db_novel_service/internal/storage"
 	"gorm.io/gorm"
 	"log"
+	"vn/internal/models"
+	"vn/internal/storage"
 )
 
 func GetChaptersByUserId(db *gorm.DB, id int64) ([]models.Chapter, error) {

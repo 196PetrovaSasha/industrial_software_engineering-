@@ -1,14 +1,18 @@
 package storage
 
 import (
-	"db_novel_service/internal/models"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"vn/internal/models"
 )
 
 func RegisterCharacter(db *gorm.DB, character models.Character) (int64, error) {
+	if db == nil {
+		return 0, errors.New("db is nil")
+	}
+
 	result := db.Create(&character)
 	if result.RowsAffected == 0 {
 		return 0, errors.New("character not created")
@@ -69,6 +73,10 @@ func SelectCharacterWIthId(db *gorm.DB, id int64) (models.Character, error) {
 //}
 
 func SelectCharacters(db *gorm.DB) ([]models.Character, error) {
+
+	if db == nil {
+		return nil, errors.New("db id nil")
+	}
 	var characters []models.Character
 
 	// Используем raw SQL с явной обработкой JSON

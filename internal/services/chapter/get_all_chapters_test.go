@@ -1,11 +1,11 @@
 package chapter
 
 import (
-	"db_novel_service/internal/models"
 	"encoding/json"
 	"regexp"
 	"testing"
 	"time"
+	"vn/internal/models"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"gorm.io/driver/postgres"

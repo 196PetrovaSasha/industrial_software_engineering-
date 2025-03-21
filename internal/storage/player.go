@@ -2,13 +2,13 @@ package storage
 
 import (
 	"database/sql"
-	"db_novel_service/internal/models"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
 	"log"
 	"strings"
+	"vn/internal/models"
 )
 
 func RegisterPlayer(db *gorm.DB, player models.Player) (int64, error) {

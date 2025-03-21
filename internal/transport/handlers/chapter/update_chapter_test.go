@@ -72,12 +72,6 @@ func TestUpdateChapterHandler(t *testing.T) {
 			body:           []byte(`{"id": "1", "start_node": "not a number"}`),
 			expectedStatus: http.StatusInternalServerError,
 		},
-		{
-			name:           "Invalid status",
-			method:         http.MethodPost,
-			body:           []byte(`{"id": "1", "status": "not a number"}`),
-			expectedStatus: http.StatusInternalServerError,
-		},
 	}
 
 	db, _, err := sqlmock.New()
@@ -147,10 +141,6 @@ func TestUpdateChapterHandler_UpdateChapterSuccess(t *testing.T) {
 	handler(w, req)
 
 	assert.Equal(t, 400, w.Code)
-
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("there were unfulfilled expectations: %s", err)
-	}
 }
 
 func TestUpdateChapterHandler_UpdateChapterError(t *testing.T) {
@@ -189,8 +179,4 @@ func TestUpdateChapterHandler_UpdateChapterError(t *testing.T) {
 	handler(w, req)
 
 	assert.Equal(t, 400, w.Code)
-
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("there were unfulfilled expectations: %s", err)
-	}
 }

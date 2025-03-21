@@ -1,8 +1,6 @@
 package chapter
 
 import (
-	"db_novel_service/internal/models"
-	"db_novel_service/internal/services/chapter"
 	"encoding/json"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
@@ -11,6 +9,10 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
+	"vn/internal/models"
+	"vn/internal/services/chapter"
+	"vn/pkg/metrick"
 )
 
 type GetChaptersByUserIdRequest struct {
@@ -19,6 +21,29 @@ type GetChaptersByUserIdRequest struct {
 
 func GetChaptersByUserIdHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		startTime := time.Now()
+
+		// Создаем wrapper для ResponseWriter чтобы отслеживать статус
+		rw := &metrick.StatusRecorder{ResponseWriter: w}
+
+		// Вызываем оригинальную функцию обработчика
+		defer func() {
+			// Записываем время выполнения запроса
+			duration := time.Since(startTime).Seconds()
+
+			// Записываем метрики
+			metrick.RequestDuration.WithLabelValues("chapter", r.Method).
+				Observe(duration)
+
+			metrick.RequestCount.WithLabelValues(
+				"chapter",
+				r.Method,
+				strconv.Itoa(rw.StatusCode),
+			).Inc()
+		}()
+
+		log.Info().Msg("получен запрос на получение главы")
 		// Добавляем CORS заголовки
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
@@ -32,7 +57,7 @@ func GetChaptersByUserIdHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFu
 
 		// Проверяем, что это POST-запрос
 		if r.Method != http.MethodPost {
-			log.Println("неверный формат метода")
+			log.Error().Msg("Only POST requests allowed шin chapters")
 			http.Error(w, "Only POST requests allowed", http.StatusMethodNotAllowed)
 			return
 		}
@@ -41,6 +66,7 @@ func GetChaptersByUserIdHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFu
 		var req GetChaptersByUserIdRequest
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
+			log.Error().Msg("Failed to read request body in chapters")
 			http.Error(w, "Failed to read request body", http.StatusInternalServerError)
 			return
 		}
@@ -48,6 +74,7 @@ func GetChaptersByUserIdHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFu
 		// Разбираем JSON
 		err = json.Unmarshal(body, &req)
 		if err != nil {
+			log.Error().Msg("Invalid JSON format in chapters")
 			http.Error(w, "Invalid JSON format", http.StatusBadRequest)
 			return
 		}
@@ -56,7 +83,7 @@ func GetChaptersByUserIdHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFu
 
 		if err != nil {
 			if err != nil {
-				log.Println("ошибка конвертации")
+				log.Error().Msg("Failed to covert id in chapters")
 				http.Error(w, "Failed to covert id", http.StatusInternalServerError)
 				return
 			}
@@ -65,6 +92,7 @@ func GetChaptersByUserIdHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFu
 		chapters, err := chapter.GetChaptersByUserId(db, id)
 
 		if err != nil {
+			log.Error().Msg("fail to get chapters in chapters")
 			http.Error(w, "fail to get chapters", http.StatusInternalServerError)
 			return // Добавлен return
 		}
@@ -75,8 +103,6 @@ func GetChaptersByUserIdHandler(db *gorm.DB, log *zerolog.Logger) http.HandlerFu
 		response := map[string]interface{}{
 			"chapters": prepareChaptersForResponce(chapters),
 		}
-		log.Println("главы отправлены")
-		log.Println(len(chapters), "столько")
 
 		// Отправляем ответ клиенту
 		w.Header().Set("Content-Type", "application/json")

@@ -1,8 +1,8 @@
 package test_node
 
 import (
-	"db_novel_service/internal/models"
 	"errors"
+	"vn/internal/models"
 )
 
 // NodeStorage реализует интерфейс для работы с узлами

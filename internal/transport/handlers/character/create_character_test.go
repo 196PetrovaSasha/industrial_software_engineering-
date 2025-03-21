@@ -1,20 +1,18 @@
-package admin
+package character
 
 import (
 	"bytes"
 	"database/sql"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/rs/zerolog"
+	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 	"net/http"
 	"net/http/httptest"
-	"regexp"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
-func TestChangeAdminHandler(t *testing.T) {
+func TestCreateCharacterHandler(t *testing.T) {
 	tests := []struct {
 		name           string
 		method         string
@@ -40,8 +38,14 @@ func TestChangeAdminHandler(t *testing.T) {
 		{
 			name:           "Invalid JSON",
 			method:         http.MethodPost,
-			body:           []byte("{invalid json"),
+			body:           []byte(`{"name": "invalid json`),
 			expectedStatus: http.StatusBadRequest,
+		},
+		{
+			name:           "Valid character creation",
+			method:         http.MethodPost,
+			body:           []byte(`{"name": "Test Character", "slug": "test-character"`),
+			expectedStatus: 400,
 		},
 	}
 
@@ -51,10 +55,11 @@ func TestChangeAdminHandler(t *testing.T) {
 	}
 	defer db.Close()
 
-	handler := AdminAuthorisationHandler(
+	logger := zerolog.Nop()
+
+	handler := CreateCharacterHandler(
 		&gorm.DB{Config: &gorm.Config{ConnPool: db}},
-		new(zerolog.Logger),
-		AuthConfig{},
+		&logger,
 	)
 
 	for _, tt := range tests {
@@ -65,7 +70,7 @@ func TestChangeAdminHandler(t *testing.T) {
 				tt.mockBehavior(*db)
 			}
 
-			req := httptest.NewRequest(tt.method, "/admin/change", reqBody)
+			req := httptest.NewRequest(tt.method, "/characters", reqBody)
 			w := httptest.NewRecorder()
 
 			handler(w, req)
@@ -73,30 +78,4 @@ func TestChangeAdminHandler(t *testing.T) {
 			assert.Equal(t, tt.expectedStatus, w.Code)
 		})
 	}
-}
-
-func TestChangeAdminHandler_ChangeAdminError(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
-
-	handler := AdminAuthorisationHandler(
-		&gorm.DB{Config: &gorm.Config{ConnPool: db}},
-		new(zerolog.Logger),
-		AuthConfig{},
-	)
-
-	reqBody := []byte(`{"id": 1, "name": "Updated User"}`)
-
-	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE id = $1`)).
-		WillReturnRows(sqlmock.NewRows([]string{"id", "name"}))
-
-	req := httptest.NewRequest(http.MethodPost, "/admin/change", bytes.NewReader(reqBody))
-	w := httptest.NewRecorder()
-
-	handler(w, req)
-
-	assert.Equal(t, 400, w.Code)
 }

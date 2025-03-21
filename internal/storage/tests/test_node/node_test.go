@@ -1,9 +1,9 @@
 package test_node
 
 import (
-	"db_novel_service/internal/models"
 	"errors"
 	"testing"
+	"vn/internal/models"
 )
 
 func TestRegisterNode(t *testing.T) {

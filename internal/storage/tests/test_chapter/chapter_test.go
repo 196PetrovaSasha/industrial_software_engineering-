@@ -1,10 +1,10 @@
 package test_chapter
 
 import (
-	"db_novel_service/internal/models"
 	"errors"
 	"testing"
 	"time"
+	"vn/internal/models"
 )
 
 func TestRegisterChapter(t *testing.T) {

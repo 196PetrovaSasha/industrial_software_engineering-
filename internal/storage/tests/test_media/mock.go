@@ -1,8 +1,8 @@
 package test_media
 
 import (
-	"db_novel_service/internal/models"
 	"errors"
+	"vn/internal/models"
 )
 
 // MediaStorage реализует интерфейс для работы с медиа

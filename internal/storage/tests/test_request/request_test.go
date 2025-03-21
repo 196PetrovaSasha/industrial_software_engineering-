@@ -1,10 +1,10 @@
 package test_request
 
 import (
-	"db_novel_service/internal/models"
 	"errors"
 	"fmt"
 	"testing"
+	"vn/internal/models"
 )
 
 func TestRegisterRequest(t *testing.T) {

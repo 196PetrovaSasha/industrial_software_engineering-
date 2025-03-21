@@ -1,12 +1,12 @@
 package storage
 
 import (
-	"db_novel_service/internal/models"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
 	"log"
+	"vn/internal/models"
 )
 
 func RegisterNode(db *gorm.DB, node models.Node) (int64, error) {

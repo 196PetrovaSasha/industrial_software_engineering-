@@ -1,8 +1,8 @@
 package test_chapter
 
 import (
-	"db_novel_service/internal/models"
 	"errors"
+	"vn/internal/models"
 )
 
 // ChapterStorage реализует интерфейс для работы с главами

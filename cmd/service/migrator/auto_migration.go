@@ -1,8 +1,8 @@
 package migrator
 
 import (
-	"db_novel_service/internal/models"
 	"log"
+	"vn/internal/models"
 )
 
 func AutoMigrate() {

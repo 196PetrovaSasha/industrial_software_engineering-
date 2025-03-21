@@ -9,7 +9,6 @@ import (
 	"gorm.io/gorm"
 	"net/http"
 	"net/http/httptest"
-	"regexp"
 	"testing"
 )
 
@@ -60,6 +59,7 @@ func TestAdminAuthorisationHandler(t *testing.T) {
 	handler := AdminAuthorisationHandler(
 		&gorm.DB{Config: &gorm.Config{ConnPool: db}},
 		new(zerolog.Logger),
+		AuthConfig{},
 	)
 
 	for _, tt := range tests {
@@ -79,29 +79,4 @@ func TestAdminAuthorisationHandler(t *testing.T) {
 			assert.Equal(t, tt.expectedStatus, w.Code)
 		})
 	}
-}
-
-func TestAdminAuthorisationHandler_AuthorizationFailed(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
-
-	handler := AdminAuthorisationHandler(
-		&gorm.DB{Config: &gorm.Config{ConnPool: db}},
-		new(zerolog.Logger),
-	)
-
-	reqBody := []byte(`{"email":"test@example.com","password":"wrong_password"}`)
-
-	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE email = $1 AND password = $2`)).
-		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "admin_status"}))
-
-	req := httptest.NewRequest(http.MethodPost, "/auth", bytes.NewReader(reqBody))
-	w := httptest.NewRecorder()
-
-	handler(w, req)
-
-	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }

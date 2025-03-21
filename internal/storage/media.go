@@ -1,9 +1,9 @@
 package storage
 
 import (
-	"db_novel_service/internal/models"
 	"errors"
 	"gorm.io/gorm"
+	"vn/internal/models"
 )
 
 func RegisterMedia(db *gorm.DB, media models.Media) (int64, error) {

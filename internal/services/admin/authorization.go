@@ -1,10 +1,10 @@
 package admin
 
 import (
-	"db_novel_service/internal/models"
-	"db_novel_service/internal/storage"
 	"fmt"
 	"gorm.io/gorm"
+	"vn/internal/models"
+	"vn/internal/storage"
 )
 
 func Authorization(email string, password string, db *gorm.DB) (*models.Admin, error) {

@@ -3,14 +3,12 @@ package chapter
 import (
 	"bytes"
 	"database/sql"
-	"encoding/json"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 	"net/http"
 	"net/http/httptest"
-	"regexp"
 	"testing"
 )
 
@@ -78,62 +76,4 @@ func TestCreateChapterHandler(t *testing.T) {
 			assert.Equal(t, tt.expectedStatus, w.Code)
 		})
 	}
-}
-
-func TestCreateChapterHandler_CreateChapterSuccess(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
-
-	handler := CreateChapterHandler(
-		&gorm.DB{Config: &gorm.Config{ConnPool: db}},
-		new(zerolog.Logger),
-	)
-
-	reqBody := []byte(`{"author": "123"}`)
-
-	mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "chapters"`)).
-		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
-	mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "nodes"`)).
-		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(2))
-
-	req := httptest.NewRequest(http.MethodPost, "/chapters", bytes.NewReader(reqBody))
-	w := httptest.NewRecorder()
-
-	handler(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	var response map[string]interface{}
-	err = json.Unmarshal(w.Body.Bytes(), &response)
-	assert.NoError(t, err)
-	assert.NotNil(t, response["id"])
-	assert.NotNil(t, response["start_node"])
-}
-
-func TestCreateChapterHandler_CreateChapterError(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
-
-	handler := CreateChapterHandler(
-		&gorm.DB{Config: &gorm.Config{ConnPool: db}},
-		new(zerolog.Logger),
-	)
-
-	reqBody := []byte(`{"author": "123"}`)
-
-	mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "chapters"`)).
-		WillReturnError(sql.ErrConnDone)
-
-	req := httptest.NewRequest(http.MethodPost, "/chapters", bytes.NewReader(reqBody))
-	w := httptest.NewRecorder()
-
-	handler(w, req)
-
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }

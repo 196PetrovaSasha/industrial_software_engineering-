@@ -2,16 +2,42 @@ package storage
 
 import (
 	"database/sql"
-	"db_novel_service/internal/models"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
 	"log"
 	"time"
+	"vn/internal/models"
 )
 
 func RegisterChapter(db *gorm.DB, chapter models.Chapter) (int64, error) {
+
+	if db == nil {
+		return 0, errors.New("database connection is nil")
+	}
+
+	chapter = models.Chapter{
+		Nodes:      chapter.Nodes,
+		Characters: chapter.Characters,
+		UpdatedAt:  make(map[time.Time]int64),
+		Name:       chapter.Name,
+		Status:     chapter.Status,
+		Author:     chapter.Author,
+		StartNode:  chapter.StartNode,
+	}
+
+	// Установка значений по умолчанию
+	if chapter.Nodes == nil {
+		chapter.Nodes = []int64{}
+	}
+	if chapter.Characters == nil {
+		chapter.Characters = []int64{}
+	}
+	if chapter.Name == "" {
+		chapter.Name = "Новая глава"
+	}
+
 	// Инициализация значений по умолчанию
 	if chapter.Nodes == nil {
 		chapter.Nodes = []int64{}

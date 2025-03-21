@@ -1,8 +1,8 @@
 package test_player
 
 import (
-	"db_novel_service/internal/models"
 	"errors"
+	"vn/internal/models"
 )
 
 // PlayerStorage реализует интерфейс для работы с игроками

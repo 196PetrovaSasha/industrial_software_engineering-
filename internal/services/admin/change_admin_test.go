@@ -1,12 +1,12 @@
 package admin
 
 import (
-	"db_novel_service/internal/models"
 	"encoding/json"
 	"github.com/DATA-DOG/go-sqlmock"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"testing"
+	"vn/internal/models"
 )
 
 func TestChangeAdmin(t *testing.T) {

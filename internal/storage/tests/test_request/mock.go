@@ -1,8 +1,8 @@
 package test_request
 
 import (
-	"db_novel_service/internal/models"
 	"errors"
+	"vn/internal/models"
 )
 
 // RequestStorage реализует интерфейс для работы с запросами

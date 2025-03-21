@@ -1,9 +1,9 @@
 package character
 
 import (
-	"db_novel_service/internal/storage"
 	"gorm.io/gorm"
 	"log"
+	"vn/internal/storage"
 )
 
 func UpdateCharacter(

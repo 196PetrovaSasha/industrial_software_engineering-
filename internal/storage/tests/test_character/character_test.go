@@ -1,9 +1,9 @@
 package test_character
 
 import (
-	"db_novel_service/internal/models"
 	"errors"
 	"testing"
+	"vn/internal/models"
 )
 
 func TestRegisterCharacter(t *testing.T) {

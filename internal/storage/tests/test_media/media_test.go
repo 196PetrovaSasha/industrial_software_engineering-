@@ -1,9 +1,9 @@
 package test_media
 
 import (
-	"db_novel_service/internal/models"
 	"errors"
 	"testing"
+	"vn/internal/models"
 )
 
 func TestRegisterMedia(t *testing.T) {

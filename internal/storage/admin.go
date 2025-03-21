@@ -2,12 +2,12 @@ package storage
 
 import (
 	"database/sql"
-	"db_novel_service/internal/models"
 	"encoding/json"
 	"errors"
 	"fmt"
 	gorm "gorm.io/gorm"
 	"log"
+	"vn/internal/models"
 )
 
 func RegisterAdmin(db *gorm.DB, admin models.Admin) (int64, error) {
@@ -20,6 +20,14 @@ func RegisterAdmin(db *gorm.DB, admin models.Admin) (int64, error) {
 
 func SelectAdminWIthEmail(db *gorm.DB, email string) (models.Admin, error) {
 	var admin models.Admin
+
+	if db == nil {
+		return models.Admin{}, errors.New("database connection is nil")
+	}
+
+	if email == "" {
+		return models.Admin{}, errors.New("email is empty")
+	}
 	// Используем raw SQL с явной обработкой JSON
 	query := `
         SELECT 

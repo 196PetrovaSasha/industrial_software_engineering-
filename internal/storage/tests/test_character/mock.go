@@ -1,8 +1,8 @@
 package test_character
 
 import (
-	"db_novel_service/internal/models"
 	"errors"
+	"vn/internal/models"
 )
 
 // CharacterStorage реализует интерфейс для работы с персонажами

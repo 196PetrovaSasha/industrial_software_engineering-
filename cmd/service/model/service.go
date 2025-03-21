@@ -1,13 +1,13 @@
 package model
 
 import (
-	"db_novel_service/pkg/config"
-	"db_novel_service/pkg/db"
-	"db_novel_service/pkg/log"
-	router2 "db_novel_service/pkg/router"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
+	"vn/pkg/config"
+	"vn/pkg/db"
+	"vn/pkg/log"
+	router2 "vn/pkg/router"
 )
 
 type Service struct {
